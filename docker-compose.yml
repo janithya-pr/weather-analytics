@@ -26,14 +26,8 @@ services:
 
     environment:
       PORT: 8080
-      AUTH0_DOMAIN: ${AUTH0_DOMAIN}
-      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
-      OPENWEATHER_BASE_URL: ${OPENWEATHER_BASE_URL}
-      OPENWEATHER_API_KEY: ${OPENWEATHER_API_KEY}
       REDIS_ADDR: redis:6379
-      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
       CITIES_FILE_PATH: /app/cities.json
-      CACHE_TTL_SECONDS: ${CACHE_TTL_SECONDS:-300}
 
     depends_on:
       redis:
