@@ -1,0 +1,51 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: weather-redis
+    ports:
+      - "6379:6379"
+    # command: redis-server --appendonly yes  # redis-server --requirepass secretpassword --appendonly yes
+    # volumes:
+    #   - redis-data:/data
+
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]  # ["CMD", "redis-cli", "-a", "secretpassword", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+    networks:
+      - weather-net
+    restart: unless-stopped
+
+  weather-api:
+    build: ./weather-service
+    container_name: weather-api
+    ports:
+      - "${PORT:-8080}:8080"
+
+    environment:
+      PORT: 8080
+      AUTH0_DOMAIN: ${AUTH0_DOMAIN}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
+      OPENWEATHER_BASE_URL: ${OPENWEATHER_BASE_URL}
+      OPENWEATHER_API_KEY: ${OPENWEATHER_API_KEY}
+      REDIS_ADDR: redis:6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      CITIES_FILE_PATH: /app/cities.json
+      CACHE_TTL_SECONDS: ${CACHE_TTL_SECONDS:-300}
+
+    depends_on:
+      redis:
+        condition: service_healthy
+
+    networks:
+      - weather-net
+    restart: unless-stopped
+
+# volumes:
+#   redis-data:
+
+networks:
+  weather-net:
+    driver: bridge
